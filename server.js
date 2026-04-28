@@ -9,8 +9,8 @@ app.use(cors());
 app.use(express.json());
 
 // ⬇️ REPLACE WITH YOUR GMAIL AND APP PASSWORD
-const YOUR_EMAIL = "yourname@gmail.com";
-const YOUR_APP_PASSWORD = "your-16-char-app-password";
+const YOUR_EMAIL = "ianrop146@gmail.com";
+const YOUR_APP_PASSWORD = "146admission";
 
 // Create transporter
 const transporter = nodemailer.createTransport({
