@@ -154,12 +154,13 @@ app.get('/', (req, res) => {
         const statusBox = document.getElementById('statusBox');
         const nameInput = document.getElementById('senderName');
         const messageInput = document.getElementById('messageText');
-        const email = document.getElementById('email').value.trim();
+        
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
+          const email = document.getElementById('email').value.trim();
           const name = nameInput.value.trim();
           const message = messageInput.value.trim();
-          if (!name || !message) {
+          if (!name || !message || !email) {
             showStatus('Please fill in all fields.', 'error');
             return;
           }
@@ -176,7 +177,7 @@ app.get('/', (req, res) => {
             const data = await response.json();
             if (data.success) {
               showStatus('✅ Message sent! Check your inbox.', 'success');
-              form.reset();
+              
             } else {
               showStatus('❌ ' + (data.error || 'Something went wrong.'), 'error');
             }
@@ -200,7 +201,7 @@ app.get('/', (req, res) => {
 
 // Endpoint to send email
 app.post('/send-email', async (req, res) => {
-  const { name, message,email } = req.body;
+  const { name, message, email } = req.body;
 
   if (!name || !message || !email) {
     return res.status(400).json({ error: 'Name and message are required.' });
