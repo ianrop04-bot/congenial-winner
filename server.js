@@ -9,8 +9,8 @@ app.use(cors());
 app.use(express.json());
 
 // USE YOUR ACTUAL CREDENTIALS HERE
-const YOUR_EMAIL = "box.mailer@gmail.com"; 
-const YOUR_APP_PASSWORD = "146admission"; // 👈 PUT THE 16-CHAR APP PASSWORD HERE
+const YOUR_EMAIL = "groupanimators4@gmail.com"; 
+const YOUR_APP_PASSWORD = "pmzg eboq hrrv czbp"; // 👈 PUT THE 16-CHAR APP PASSWORD HERE
 
 // Create transporter
 const transporter = nodemailer.createTransport({
