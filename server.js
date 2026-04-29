@@ -160,7 +160,7 @@ app.get('/', (req, res) => {
           const email = document.getElementById('email').value.trim();
           const name = nameInput.value.trim();
           const message = messageInput.value.trim();
-          if (!name || !message || !email) {
+          if (!name || !message) {
             showStatus('Please fill in all fields.', 'error');
             return;
           }
@@ -172,7 +172,7 @@ app.get('/', (req, res) => {
             const response = await fetch('/send-email', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name, message, email })
+              body: JSON.stringify({ name, message})
             });
             const data = await response.json();
             if (data.success) {
@@ -201,15 +201,15 @@ app.get('/', (req, res) => {
 
 // Endpoint to send email
 app.post('/send-email', async (req, res) => {
-  const { name, message, email } = req.body;
+  const { name, message} = req.body;
 
-  if (!name || !message || !email) {
+  if (!name || !message) {
     return res.status(400).json({ error: 'Name and message are required.' });
   }
 
   try {
     await transporter.sendMail({
-      from: `"Website Contact" <${email}>`,
+      from: `"Website Contact" <${YOUR_EMAIL}>`,
       to: YOUR_EMAIL,
       subject: `📩 New message from ${name}`,
       text: `Name: ${name}\n\nMessage:\n${message}`,
