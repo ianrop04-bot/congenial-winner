@@ -8,9 +8,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ⬇️ REPLACE WITH YOUR GMAIL AND APP PASSWORD
-const YOUR_EMAIL = "box.mailer01@gm8ail.com";
-const YOUR_APP_PASSWORD = "146admission";
+// USE YOUR ACTUAL CREDENTIALS HERE
+const YOUR_EMAIL = "box.mailer@gmail.com"; 
+const YOUR_APP_PASSWORD = "146admission"; // 👈 PUT THE 16-CHAR APP PASSWORD HERE
 
 // Create transporter
 const transporter = nodemailer.createTransport({
@@ -18,6 +18,16 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: YOUR_EMAIL,
     pass: YOUR_APP_PASSWORD
+  }
+});
+
+// Test email connection on startup
+transporter.verify(function(error, success) {
+  if (error) {
+    console.log('❌ SERVER ERROR - Email not configured:', error.message);
+    console.log('⚠️ Make sure you are using an App Password, not regular password');
+  } else {
+    console.log('✅ Server is ready to send emails');
   }
 });
 
@@ -136,14 +146,9 @@ app.get('/', (req, res) => {
             <input type="text" id="senderName" placeholder="Alex Rivera" required>
           </div>
           <div class="form-group">
-          <label>📤Email</label>
-          <input type="email" id="email" placeholder="Your Email"
-          </div>
-          <div class="form-group">
             <label>💬 Message</label>
             <textarea id="messageText" placeholder="Hi! I wanted to reach out..." required></textarea>
           </div>
-          
           <button type="submit" class="btn" id="submitBtn">✉️ Send message</button>
           <div id="statusBox" class="status"></div>
         </form>
@@ -157,37 +162,42 @@ app.get('/', (req, res) => {
         
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
-          const email = document.getElementById('email').value.trim();
           const name = nameInput.value.trim();
           const message = messageInput.value.trim();
+          
           if (!name || !message) {
             showStatus('Please fill in all fields.', 'error');
             return;
           }
+          
           submitBtn.disabled = true;
           submitBtn.textContent = '⏳ Sending...';
           statusBox.className = 'status';
           statusBox.style.display = 'none';
+          
           try {
             const response = await fetch('/send-email', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name, message})
+              body: JSON.stringify({ name, message })
             });
+            
             const data = await response.json();
+            
             if (data.success) {
               showStatus('✅ Message sent! Check your inbox.', 'success');
-              
+              form.reset();
             } else {
-              showStatus('❌ ' + (data.error || 'Something went wrong.'), 'error');
+              showStatus('❌ ' + (data.error || 'Something went wrong. Please try again.'), 'error');
             }
           } catch (err) {
-            showStatus('❌ Could not connect to server.', 'error');
+            showStatus('❌ Could not connect to server. Please try again later.', 'error');
           } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = '✉️ Send message';
           }
         });
+        
         function showStatus(text, type) {
           statusBox.textContent = text;
           statusBox.className = 'status ' + type;
@@ -201,14 +211,18 @@ app.get('/', (req, res) => {
 
 // Endpoint to send email
 app.post('/send-email', async (req, res) => {
-  const { name, message} = req.body;
-
+  const { name, message } = req.body;
+  
   if (!name || !message) {
     return res.status(400).json({ error: 'Name and message are required.' });
   }
-
+  
   try {
-    await transporter.sendMail({
+    console.log('📤 Attempting to send email...');
+    console.log('From:', name);
+    console.log('Message length:', message.length);
+    
+    const info = await transporter.sendMail({
       from: `"Website Contact" <${YOUR_EMAIL}>`,
       to: YOUR_EMAIL,
       subject: `📩 New message from ${name}`,
@@ -220,13 +234,31 @@ app.post('/send-email', async (req, res) => {
         <p>${message.replace(/\n/g, '<br>')}</p>
       `
     });
-
+    
+    console.log('✅ Email sent successfully!');
+    console.log('Message ID:', info.messageId);
+    
     res.json({ success: true, message: 'Email sent successfully!' });
   } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).json({ error: 'Failed to send email.' });
+    console.error('❌ Failed to send email:', error.message);
+    
+    // Check for common errors
+    let errorMessage = 'Failed to send email. ';
+    if (error.code === 'EAUTH') {
+      errorMessage = 'Email authentication failed. You MUST use an App Password, not your regular Gmail password.';
+    }
+    
+    res.status(500).json({ 
+      error: errorMessage,
+      details: error.message 
+    });
   }
 });
 
-// Export for Vercel
-app.listen(4838,()=>{console.log('💚 web ready 4838')})
+// Use PORT from environment (Render sets this automatically)
+const PORT = process.env.PORT || 3230;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log('📧 Email configured for:', YOUR_EMAIL);
+  console.log('⚠️ IMPORTANT: Make sure you are using a Gmail App Password, not regular password!');
+});
