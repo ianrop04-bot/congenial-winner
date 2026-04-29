@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 // ⬇️ REPLACE WITH YOUR GMAIL AND APP PASSWORD
-const YOUR_EMAIL = "ianrop140@gmail.com";
+const YOUR_EMAIL = "box.mailer01@gm8ail.com";
 const YOUR_APP_PASSWORD = "146admission";
 
 // Create transporter
