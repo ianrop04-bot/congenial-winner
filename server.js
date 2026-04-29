@@ -171,7 +171,7 @@ app.get('/', (req, res) => {
             const response = await fetch('/send-email', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name:name, message:message, email:email })
+              body: JSON.stringify({ name, message, email })
             });
             const data = await response.json();
             if (data.success) {
